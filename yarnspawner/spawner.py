@@ -131,17 +131,23 @@ class YarnSpawner(Spawner):
         config=True,
     )
 
-    credential_providers = List(
+    delegation_token_providers = List(
         [],
         help="""
-        Collection of systems for which to collect the kerberos delegation token.
-        It is a list of tuples. Each tuple has 3 elements: (``system-name``, ``sistem-uri``, ``system-principal``).
-        Example: 
+        Collection of systems for which to collect the kerberos delegation token. Example:         
         .. code::
-            c.YarnSpawner.credential_providers = [{
-                'name':'hive', 
-                'uri':'hive2://127.0.0.1:10000/myDatabase', 
-                'principal':'hive/hadoop.mycompany@HADOOP.MYCOMPANY.COM'
+            c.YarnSpawner.delegation_token_providers = [{
+                'name': 'hive', 
+                'config': {
+                    'hive.jdbc.url':'hive2://127.0.0.1:10000/myDatabase', 
+                    'hive.jdbc.principal':'hive/hadoop.mycompany@HADOOP.MYCOMPANY.COM'                
+                }
+            }, {
+                'name': 'hcat', 
+                'config': {
+                    'hcat.metastore.uri':'thrift://127.0.0.1:9083', 
+                    'hcat.metastore.principal':'hive/hadoop.mycompany@HADOOP.MYCOMPANY.COM'                
+                }
             }]
         """,
         config=True,
@@ -200,7 +206,7 @@ class YarnSpawner(Spawner):
             queue=self.queue,
             user=self.user.name,
             master=master,
-            credential_providers=self.credential_providers
+            delegation_token_providers=self.delegation_token_providers
         )
 
     def load_state(self, state):
